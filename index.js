@@ -43,7 +43,14 @@ const run = async () => {
 
     core.debug(`iteration: ${iteration.title}`);
 
-    const newIteration = newiterationType === "current" ? currentIteration : nextIteration;
+    let newIteration;
+    if (newiterationType === "none") {
+      newIteration = "";
+    } else if (newiterationType === "current") {
+      newIteration = currentIteration;
+    } else {
+      newIteration = nextIteration;
+    }
 
     if (!newIteration) {
       core.setFailed(`No ${newiterationType} iteration found. Check if the iteration exists.`);
@@ -66,7 +73,7 @@ const run = async () => {
     });
 
     await Promise.all(
-      filteredItems.map((item) => ghProject.items.update(item.id, { iteration: newIteration.title }))
+      filteredItems.map((item) => ghProject.items.update(item.id, { iteration: newIteration ? newIteration.title : "" }))
     );
   } catch (error) {
     core.setFailed(error);
