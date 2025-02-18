@@ -36,12 +36,12 @@ const run = async () => {
 
     const iteration = iterationType === "last" ? lastIteration : currentIteration;
 
-    if (!iteration) {
-      core.setFailed(`No ${iterationType} iteration found. Check if the iteration exists.`);
-      return;
-    }
+    // if (!iteration) {
+    //   core.setFailed(`No ${iterationType} iteration found. Check if the iteration exists.`);
+    //   return;
+    // }
 
-    core.debug(`iteration: ${iteration.title}`);
+    // core.debug(`iteration: ${iteration.title}`);
 
     let newIteration;
     if (newiterationType === "none") {
@@ -61,7 +61,9 @@ const run = async () => {
 
     const filteredItems = items.filter((item) => {
       // If item is not in the old iteration, return false.
-      if (item.fields.iteration !== iteration.title) return false;
+      if (item.fields.iteration && iteration?.title && item.fields.iteration !== iteration.title) {
+        return false;
+      }
       // If excludedStatuses are supplied, use that. Otherwise, use statuses.
       if (excludedStatuses?.length) {
         // Move item only if its status _is not_ in the excluded statuses list.
