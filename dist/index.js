@@ -30604,13 +30604,6 @@ const run = async () => {
 
     const iteration = iterationType === "last" ? lastIteration : currentIteration;
 
-    // if (!iteration) {
-    //   core.setFailed(`No ${iterationType} iteration found. Check if the iteration exists.`);
-    //   return;
-    // }
-
-    // core.debug(`iteration: ${iteration.title}`);
-
     let newIteration;
     if (newiterationType === "none") {
       newIteration = "";
@@ -30619,13 +30612,6 @@ const run = async () => {
     } else {
       newIteration = nextIteration;
     }
-
-    if (!newIteration) {
-      core.setFailed(`No ${newiterationType} iteration found. Check if the iteration exists.`);
-      return;
-    }
-
-    core.debug(`newIteration: ${newIteration.title}`);
 
     const filteredItems = items.filter((item) => {
       // If item is not in the old iteration, return false.
