@@ -3,6 +3,7 @@ import GitHubProject from "github-project";
 
 const run = async () => {
   try {
+    const batchSize = Number(core.getInput("batch-size") || 20);
     const owner = core.getInput("owner");
     const number = Number(core.getInput("number"));
     const token = core.getInput("token");
@@ -36,13 +37,6 @@ const run = async () => {
 
     const iteration = iterationType === "last" ? lastIteration : currentIteration;
 
-    // if (!iteration) {
-    //   core.setFailed(`No ${iterationType} iteration found. Check if the iteration exists.`);
-    //   return;
-    // }
-
-    // core.debug(`iteration: ${iteration.title}`);
-
     let newIteration;
     if (newiterationType === "none") {
       newIteration = "";
@@ -51,13 +45,6 @@ const run = async () => {
     } else {
       newIteration = nextIteration;
     }
-
-    if (!newIteration) {
-      core.setFailed(`No ${newiterationType} iteration found. Check if the iteration exists.`);
-      return;
-    }
-
-    core.debug(`newIteration: ${newIteration.title}`);
 
     const filteredItems = items.filter((item) => {
       // If item is not in the old iteration, return false.
@@ -74,9 +61,17 @@ const run = async () => {
       }
     });
 
-    await Promise.all(
-      filteredItems.map((item) => ghProject.items.update(item.id, { iteration: newIteration ? newIteration.title : "" }))
-    );
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    for (let i = 0; i < filteredItems.length; i += batchSize) {
+      const promises = filteredItems.slice(i, i + batchSize).map((item) => 
+        ghProject.items.update(item.id, { iteration: newIteration ? newIteration.title : "" })
+      );
+      await Promise.all(promises);
+      await delay(1000);
+    }
+
+    await delay(1000); // Get more time for next action
   } catch (error) {
     core.setFailed(error);
   }
